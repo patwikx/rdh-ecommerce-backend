@@ -1,4 +1,4 @@
-import prismadb from "@/lib/prismadb";
+import prismadb from "@/lib/db";
 import { OrdersForm } from "./components/order-form";
 import { CardTitle } from "@/components/ui/card";
 
