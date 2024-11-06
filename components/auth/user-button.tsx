@@ -13,11 +13,12 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "@/components/ui/avatar";
-import { useCurrentUser } from "@/hooks/use-current-user";
+
 import { LogoutButton } from "@/components/auth/logout-button";
 import { Bell, CircleUser, User2 } from "lucide-react";
 
 import { Button } from "../ui/button";
+import { useCurrentUser } from "@/lib/auth";
 
 
 export const UserButton = () => {
