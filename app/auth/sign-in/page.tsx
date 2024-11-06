@@ -4,8 +4,9 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { UserAuthForm } from './components/auth-form';
 import { Card, CardContent } from '@/components/ui/card';
-import { useCurrentUser } from '@/hooks/use-current-user';
+
 import { useRouter } from 'next/navigation';
+import { useCurrentUser } from '@/lib/auth';
 
 export default function Login() {
   const session = useCurrentUser();

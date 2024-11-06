@@ -1,46 +1,41 @@
-import type { Metadata } from "next";
-import { Urbanist } from "next/font/google";
-import "./globals.css";
-import Footer from "@/components/footer";
-import Navbar from "@/components/navbar";
-import ModalProvider from "@/providers/modal-provider";
-import ToastProvider from "@/providers/toast-provider";
-import { Toaster } from "sonner";
-import SessionWrapper from "@/components/session-provider";
-import { ThemeProvider } from "@/components/theme-provider";
-import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
-import { extractRouterConfig } from "uploadthing/server";
-import { ourFileRouter } from "./api/uploadthing/core";
 
-const font = Urbanist({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "RDHFSI Store",
-  description: "RD Hardware Store",
-};
+import { Inter } from 'next/font/google'
 
-export default function RootLayout({
+import { ModalProvider } from '@/providers/modal-provider'
+import { ToastProvider } from '@/providers/toast-provider'
+import { ThemeProvider } from '@/providers/theme-provider'
+
+import './globals.css'
+import SessionWrapper from '@/components/session-provider'
+
+const inter = Inter({ subsets: ['latin'] })
+
+export const metadata = {
+  title: 'Dashboard',
+  description: 'E-Commerce Dashboard',
+}
+
+export default async function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head />
-      <body className={font.className}>
-
-    <SessionWrapper>
-          <ModalProvider />
-          <ToastProvider />
-          <Navbar />
-          <NextSSRPlugin
-          routerConfig={extractRouterConfig(ourFileRouter)}
-        />
-          {children}
-          <Toaster />
-          <Footer />
-          </SessionWrapper>
-      </body>
-    </html>
-  );
+<SessionWrapper>
+      <html lang="en">
+        <body className={inter.className}>
+          <ThemeProvider 
+            attribute="class" 
+            defaultTheme="system" 
+            enableSystem
+          >
+            <ToastProvider />
+            <ModalProvider />
+            {children}
+          </ThemeProvider>
+        </body>
+      </html>
+      </SessionWrapper>
+  )
 }
