@@ -4,10 +4,8 @@ import { NewPasswordSchema, RegisterTenantSchema, RegisterUserSchema, ResetSchem
 
 import {  getUserByEmail, getUserById } from "@/data/user";
 
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import { getVerificationTokenByToken } from "@/data/verificiation-token";
 import { getPasswordResetTokenByToken } from "@/data/password-reset-token";
 import prismadb from "@/lib/db";
 import { getCurrentUser } from "@/hooks/use-current-user";

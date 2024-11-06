@@ -40,27 +40,57 @@ model Session {
 }
 
 model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
+  expires DateTime
 
-  @@unique([identifier, token])
+  @@unique([email, token])
+}
+
+model PasswordResetToken {
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model TwoFactorToken {
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model TwoFactorConfirmation {
+  id String @id @default(cuid())
+
+  userId   String
+  tenantId String @unique
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
 }
 
 // Modified User model
 model User {
-  id            String    @id @default(cuid())
+  id            String                  @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?                 @unique
   emailVerified DateTime?
   image         String?
   password      String?
   accounts      Account[]
   sessions      Session[]
-  store         Store?    @relation(fields: [storeId], references: [id]) // Optional relation to a store
+  twoFactore    TwoFactorConfirmation[]
+  store         Store?                  @relation(fields: [storeId], references: [id]) // Optional relation to a store
   storeId       String? // Foreign key to reference the Store
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
 
   @@index([storeId])
 }
