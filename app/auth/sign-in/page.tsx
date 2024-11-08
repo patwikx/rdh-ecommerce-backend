@@ -25,7 +25,7 @@ export default function Login() {
         <CardContent className='p-8'>
           <div className="space-y-6 text-center">
             <div className="flex flex-col space-y-2">
-              <h1 className="text-2xl font-bold tracking-tight"> 
+              <h1 className="text-2xl font-bold tracking-tight whitespace-nowrap"> 
                 RD Hardware & Fishing Supply, Inc.
               </h1>
               <p className="text-sm text-muted-foreground">

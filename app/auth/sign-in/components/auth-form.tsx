@@ -9,7 +9,7 @@ import { Icons } from "@/components/ui/icons"
 import { toast } from "sonner"
 import { signIn } from "next-auth/react"
 import { RegisterForm } from "@/components/auth/register-form"
-import { useRouter } from "next/navigation"
+
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -17,7 +17,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
-  const router = useRouter()
+
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -28,14 +28,9 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         email,
         password,
         redirect: true,
-        callbackUrl: "/dashboard"
+        callbackUrl: "/"
       })
 
-      if (result?.error) {
-        toast.error(result.error)
-      } else {
-        router.push("/dashboard")
-      }
     } catch (error) {
       toast.error("An error occurred. Please try again.")
     } finally {
@@ -78,27 +73,14 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             )}
             Login
           </Button>
+         
         </div>
       </form>
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t" />
         </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Or continue with
-          </span>
-          <RegisterForm />
-        </div>
       </div>
-      <Button onClick={() => signIn('google')} variant="outline" type="button" disabled={isLoading}>
-        {isLoading ? (
-          <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <Icons.google className="mr-2 h-4 w-4" />
-        )}
-        Google
-      </Button>
     </div>
   )
 }

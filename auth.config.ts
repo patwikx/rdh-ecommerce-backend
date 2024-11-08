@@ -1,6 +1,5 @@
 import type { NextAuthConfig } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
-import Google from "next-auth/providers/google"
 import bcryptjs from "bcryptjs"
 
 import { LoginSchema } from "@/schemas"
@@ -8,18 +7,18 @@ import { getUserByEmail } from "@/data/user"
 
 export const authConfig = {
   pages: {
-    signIn: "/auth/login",
-    error: "/auth/error",
+    signIn: "/auth/sign-in",
   },
   callbacks: {
     async authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user
-      const isOnDashboard = nextUrl.pathname.startsWith('/dashboard')
+      const storeId = auth?.user?.storeId || ''
+      const isOnDashboard = nextUrl.pathname.startsWith(`/${storeId}`)
       const isOnAuth = nextUrl.pathname.startsWith('/auth')
 
       if (isOnAuth) {
         if (isLoggedIn) {
-          return Response.redirect(new URL('/dashboard', nextUrl))
+          return Response.redirect(new URL(`/${storeId}`, nextUrl))
         }
         return true
       }
@@ -33,10 +32,6 @@ export const authConfig = {
     },
   },
   providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
     Credentials({
       async authorize(credentials) {
         const validatedFields = LoginSchema.safeParse(credentials)

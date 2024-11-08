@@ -17,16 +17,7 @@ export const {
   session: { strategy: "jwt" },
   ...authConfig,
   pages: {
-    signIn: "/auth/login",
-    error: "/auth/error",
-  },
-  events: {
-    async linkAccount({ user }) {
-      await prismadb.user.update({
-        where: { id: user.id },
-        data: { emailVerified: new Date() },
-      })
-    },
+    signIn: "/auth/sign-in",
   },
   callbacks: {
     async signIn({ user, account }) {
@@ -49,6 +40,7 @@ export const {
         session.user.name = token.name as string
         session.user.email = token.email
         session.user.id = token.id as string
+        session.user.storeId = token.storeId as string
       }
 
       return session
@@ -66,6 +58,7 @@ export const {
       token.name = existingUser.name
       token.email = existingUser.email
       token.id = existingUser.id
+      token.storeId = existingUser.storeId
 
       return token
     },
