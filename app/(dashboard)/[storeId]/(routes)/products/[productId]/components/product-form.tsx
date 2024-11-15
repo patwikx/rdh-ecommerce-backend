@@ -39,6 +39,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useToast } from "@/hooks/use-toast"
+import { ToastAction } from "@/components/ui/toast"
 
 const productSchema = z.object({
   barCode: z.string().min(13),
@@ -79,6 +81,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 }) => {
   const params = useParams();
   const router = useRouter();
+  const { toast } = useToast();
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -123,7 +126,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       const productsToSubmit = data.products.map(product => ({
         ...product,
         images: product.images || [],
-        uomId: product.uomId || null, // Convert empty string back to null
+        uomId: product.uomId || null,
       }));
       if (initialData) {
         await axios.patch(`/api/${params.storeId}/products/${params.productId}`, productsToSubmit[0]);
@@ -132,9 +135,17 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       }
       router.refresh();
       router.push(`/${params.storeId}/products`);
-      toast.success(initialData ? 'Product updated.' : 'Products created.');
+      toast({
+        title: initialData ? "Product Updated" : "Products Created",
+        description: initialData ? "Your product has been updated successfully." : "Your products have been created successfully.",
+        action: <ToastAction altText="View products">View</ToastAction>,
+      });
     } catch (error: any) {
-      toast.error('Something went wrong.');
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -146,9 +157,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       await axios.delete(`/api/${params.storeId}/products/${params.productId}`);
       router.refresh();
       router.push(`/${params.storeId}/products`);
-      toast.success('Product deleted.');
+      toast({
+        title: "Product Deleted",
+        description: "The product has been deleted successfully.",
+      });
     } catch (error: any) {
-      toast.error('Something went wrong.');
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
       setOpen(false);
@@ -161,7 +179,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       const currentProducts = form.getValues('products');
       currentProducts[index].images = fileUrls;
       form.setValue('products', currentProducts);
-      toast.success("Upload Completed");
+      toast({
+        title: "Upload Completed",
+        description: "Your images have been uploaded successfully.",
+      });
     }
   };
 
@@ -194,12 +215,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
         form.setValue('products', products);
         setIsImportMode(true);
-        toast.success(`${products.length} products loaded from Excel`);
+        toast({
+          title: "Excel Import Successful",
+          description: `${products.length} products loaded from Excel`,
+        });
       };
 
       reader.readAsBinaryString(file);
     } catch (error) {
-      toast.error('Error importing Excel file');
+      toast({
+        title: "Error",
+        description: "Error importing Excel file. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       // Reset the file input
       if (fileInputRef.current) {
@@ -496,7 +524,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                           endpoint="image"
                           onClientUploadComplete={(res) => handleFileUpload(res, index)}
                           onUploadError={(error: Error) => {
-                            toast.error(`Upload ERROR! ${error.message}`);
+                            toast({
+                              title: "Error",
+                              description: "Something went wrong. Please try again.",
+                              variant: "destructive",
+                            });
                           }}
                         />
                       </TableCell>
@@ -552,7 +584,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                             endpoint="image"
                             onClientUploadComplete={(res) => handleFileUpload(res, index)}
                             onUploadError={(error: Error) => {
-                              toast.error(`Upload ERROR! ${error.message}`);
+                              toast({
+                                title: "Error",
+                                description: "Something went wrong. Please try again.",
+                                variant: "destructive",
+                              });
                             }}
                           />
                           <div className="flex flex-col items-center">
