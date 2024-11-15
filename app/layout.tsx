@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/providers/theme-provider'
 
 import './globals.css'
 import SessionWrapper from '@/components/session-provider'
+import { IdleTimer } from '@/components/idle-timer'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -33,6 +34,7 @@ export default async function RootLayout({
             <ToastProvider />
             <ModalProvider />
             {children}
+            <IdleTimer />
           </ThemeProvider>
         </body>
       </html>
