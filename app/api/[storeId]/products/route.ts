@@ -2,7 +2,6 @@ import { auth } from '@/auth';
 import prismadb from '@/lib/db';
 import { NextResponse } from 'next/server';
 
-
 export async function POST(
   req: Request,
   { params }: { params: { storeId: string } }
@@ -12,7 +11,7 @@ export async function POST(
 
     const body = await req.json();
 
-    const { barCode, name, itemDesc, price, categoryId, colorId, sizeId, images, isFeatured, isArchived } = body;
+    const { barCode, name, itemDesc, price, categoryId, colorId, sizeId, uomId, images, isFeatured, isArchived } = body;
 
     if (!session?.user?.id) {
       return new NextResponse("Unauthenticated", { status: 403 });
@@ -50,11 +49,14 @@ export async function POST(
       return new NextResponse("Size id is required", { status: 400 });
     }
 
+    if (!uomId) {
+      return new NextResponse("UoM id is required", { status: 400 });
+    }
+
     if (!params.storeId) {
       return new NextResponse("Store id is required", { status: 400 });
     }
 
-  
     const user = await prismadb.user.findUnique({
       where: { id: session.user.id },
       include: { store: true }
@@ -75,6 +77,7 @@ export async function POST(
         categoryId,
         colorId,
         sizeId,
+        uomId,
         storeId: params.storeId,
         images: {
           createMany: {

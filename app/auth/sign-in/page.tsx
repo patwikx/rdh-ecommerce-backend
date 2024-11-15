@@ -6,6 +6,7 @@ import { UserAuthForm } from './components/auth-form'
 import { useRouter } from 'next/navigation'
 import { useCurrentUser } from '@/lib/auth'
 
+
 export default function Login() {
   const session = useCurrentUser()
   const router = useRouter()

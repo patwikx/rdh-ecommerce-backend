@@ -33,25 +33,31 @@ export async function POST(
       return new NextResponse("Unauthorized", { status: 405 })
     }
 
-    const createdProducts = await prismadb.$transaction(
-      products.map((product) => 
-        prismadb.product.create({
-          data: {
-            ...product,
-            storeId: params.storeId,
-            images: {
-              create: product.images?.map((image: string) => ({
-                url: image
-              })) || []
-            }
-          }
-        })
-      )
-    )
+    const createdProducts = await Promise.all(products.map(async (product) => {
+      // Ensure images are correctly formatted
+      const formattedImages = product.images?.map((image: any) => ({
+        url: image.url.url || image.url
+      })) || [];
 
-    return NextResponse.json(createdProducts)
+      // Validate required fields including uomId
+      if (!product.name || !product.barCode || !product.price || !product.categoryId || !product.colorId || !product.sizeId || !product.uomId) {
+        throw new Error(`Invalid product data: ${JSON.stringify(product)}`)
+      }
+
+      return prismadb.product.create({
+        data: {
+          ...product,
+          storeId: params.storeId,
+          images: {
+            create: formattedImages
+          }
+        },
+      });
+    }));
+
+    return NextResponse.json(createdProducts);
   } catch (error) {
-    console.log('[PRODUCTS_POST]', error)
-    return new NextResponse("Internal error", { status: 500 })
+    console.log('[PRODUCTS_BULK_POST]', error);
+    return new NextResponse("Internal error", { status: 500 });
   }
 }

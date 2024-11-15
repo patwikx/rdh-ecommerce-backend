@@ -73,6 +73,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             )}
             Login
           </Button>
+          <RegisterForm />
          
         </div>
       </form>

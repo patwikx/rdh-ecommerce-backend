@@ -6,8 +6,8 @@ import { useState, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useFieldArray, useForm } from "react-hook-form"
 import { toast } from "react-hot-toast"
-import { Loader, Plus, Trash, Upload } from "lucide-react"
-import { Category, Color, Image, Product, Size } from "@prisma/client"
+import { Loader, Plus, Trash, Upload } from 'lucide-react'
+import { Category, Color, Image, Product, Size, UoM } from "@prisma/client"
 import { useParams, useRouter } from "next/navigation"
 import * as XLSX from 'xlsx'
 
@@ -49,6 +49,7 @@ const productSchema = z.object({
   categoryId: z.string().min(1),
   colorId: z.string().min(1),
   sizeId: z.string().min(1),
+  uomId: z.string().min(1).nullable(),
   isFeatured: z.boolean().default(false),
   isArchived: z.boolean().default(false)
 });
@@ -66,13 +67,15 @@ interface ProductFormProps {
   categories: Category[];
   colors: Color[];
   sizes: Size[];
+  uoms: UoM[];
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({
   initialData,
   categories,
   colors,
-  sizes
+  sizes,
+  uoms
 }) => {
   const params = useParams();
   const router = useRouter();
@@ -91,6 +94,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           price: parseFloat(String(initialData?.price)),
           itemDesc: initialData.itemDesc || '',
           images: initialData.images.map(img => ({ url: img.url })),
+          uomId: initialData.uomId || '', // Convert null to empty string for the form
         },
       ] : [{
         barCode: '',
@@ -101,6 +105,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         categoryId: '',
         colorId: '',
         sizeId: '',
+        uomId: '',
         isFeatured: false,
         isArchived: false,
       }]
@@ -117,7 +122,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       setLoading(true);
       const productsToSubmit = data.products.map(product => ({
         ...product,
-        images: product.images || []
+        images: product.images || [],
+        uomId: product.uomId || null, // Convert empty string back to null
       }));
       if (initialData) {
         await axios.patch(`/api/${params.storeId}/products/${params.productId}`, productsToSubmit[0]);
@@ -181,6 +187,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           categoryId: String(row.categoryId || ''),
           colorId: String(row.colorId || ''),
           sizeId: String(row.sizeId || ''),
+          uomId: String(row.uomId || ''),
           isFeatured: Boolean(row.isFeatured),
           isArchived: Boolean(row.isArchived),
         }));
@@ -211,6 +218,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         categoryId: categories[0]?.id || '',
         colorId: colors[0]?.id || '',
         sizeId: sizes[0]?.id || '',
+        uomId: uoms[0]?.id || '',
         isFeatured: false,
         isArchived: false
       }
@@ -234,12 +242,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         categoryId: '',
         colorId: '',
         sizeId: '',
+        uomId: '',
         isFeatured: false,
         isArchived: false,
       }]
     });
     setIsImportMode(false);
   };
+
   return (
     <>
       <AlertModal 
@@ -292,8 +302,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     <TableHead>Category</TableHead>
                     <TableHead>Size</TableHead>
                     <TableHead>Color</TableHead>
+                    <TableHead>UoM</TableHead>
                     <TableHead>Featured</TableHead>
-                    <TableHead>Archived</TableHead>
                     <TableHead>Images</TableHead>
                     <TableHead className="w-[70px]"></TableHead>
                   </TableRow>
@@ -301,221 +311,234 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 <TableBody>
                   {fields.map((field, index) => (
                     <TableRow key={field.id}>
-                        <TableCell>
-                          <FormField
-                            control={form.control}
-                            name={`products.${index}.barCode`}
-                            render={({ field }) => (
-                              <FormItem>
+                      <TableCell>
+                        <FormField
+                          control={form.control}
+                          name={`products.${index}.barCode`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input {...field} className="w-[180px]" />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <FormField
+                          control={form.control}
+                          name={`products.${index}.name`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <FormField
+                          control={form.control}
+                          name={`products.${index}.itemDesc`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <FormField
+                          control={form.control}
+                          name={`products.${index}.price`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input {...field} type="number" className="w-[100px]" />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <FormField
+                          control={form.control}
+                          name={`products.${index}.categoryId`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                value={field.value} 
+                                defaultValue={field.value}
+                              >
                                 <FormControl>
-                                  <Input {...field} className="w-[180px]" />
+                                  <SelectTrigger>
+                                    <SelectValue defaultValue={field.value} />
+                                  </SelectTrigger>
                                 </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={form.control}
-                            name={`products.${index}.name`}
-                            render={({ field }) => (
-                              <FormItem>
+                                <SelectContent>
+                                  {categories.map((category) => (
+                                    <SelectItem key={category.id} value={category.id}>
+                                      {category.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <FormField
+                          control={form.control}
+                          name={`products.${index}.sizeId`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                value={field.value} 
+                                defaultValue={field.value}
+                              >
                                 <FormControl>
-                                  <Input {...field} />
+                                  <SelectTrigger>
+                                    <SelectValue defaultValue={field.value} />
+                                  </SelectTrigger>
                                 </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={form.control}
-                            name={`products.${index}.itemDesc`}
-                            render={({ field }) => (
-                              <FormItem>
+                                <SelectContent>
+                                  {sizes.map((size) => (
+                                    <SelectItem key={size.id} value={size.id}>
+                                      {size.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <FormField
+                          control={form.control}
+                          name={`products.${index}.colorId`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                value={field.value} 
+                                defaultValue={field.value}
+                              >
                                 <FormControl>
-                                  <Input {...field} />
+                                  <SelectTrigger>
+                                <SelectValue defaultValue={field.value} />
+                                  </SelectTrigger>
                                 </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={form.control}
-                            name={`products.${index}.price`}
-                            render={({ field }) => (
-                              <FormItem>
+                                <SelectContent>
+                                  {colors.map((color) => (
+                                    <SelectItem key={color.id} value={color.id}>
+                                      {color.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <FormField
+                          control={form.control}
+                          name={`products.${index}.uomId`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                value={field.value || ''} // Convert null to empty string
+                                defaultValue={field.value || ''} // Convert null to empty string
+                              >
                                 <FormControl>
-                                  <Input {...field} type="number" className="w-[100px]" />
+                                  <SelectTrigger>
+                                    <SelectValue defaultValue={field.value || ''} />
+                                  </SelectTrigger>
                                 </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={form.control}
-                            name={`products.${index}.categoryId`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <Select 
-                                  onValueChange={field.onChange} 
-                                  value={field.value} 
-                                  defaultValue={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue defaultValue={field.value} />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {categories.map((category) => (
-                                      <SelectItem key={category.id} value={category.id}>
-                                        {category.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={form.control}
-                            name={`products.${index}.sizeId`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <Select 
-                                  onValueChange={field.onChange} 
-                                  value={field.value} 
-                                  defaultValue={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue defaultValue={field.value} />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {sizes.map((size) => (
-                                      <SelectItem key={size.id} value={size.id}>
-                                        {size.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={form.control}
-                            name={`products.${index}.colorId`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <Select 
-                                  onValueChange={field.onChange} 
-                                  value={field.value} 
-                                  defaultValue={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue defaultValue={field.value} />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {colors.map((color) => (
-                                      <SelectItem key={color.id} value={color.id}>
-                                        {color.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={form.control}
-                            name={`products.${index}.isFeatured`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                  />
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={form.control}
-                            name={`products.${index}.isArchived`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
+                                <SelectContent>
+                                  {uoms.map((uom) => (
+                                    <SelectItem key={uom.id} value={uom.id}>
+                                      {uom.UoM}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <FormField
+                          control={form.control}
+                          name={`products.${index}.isFeatured`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
                                 />
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <UploadButton<OurFileRouter, "image">
-                            endpoint="image"
-                            onClientUploadComplete={(res) => handleFileUpload(res, index)}
-                            onUploadError={(error: Error) => {
-                              toast.error(`Upload ERROR! ${error.message}`);
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => remove(index)}
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                <div className="mb-4 ml-2">
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <UploadButton<OurFileRouter, "image">
+                          endpoint="image"
+                          onClientUploadComplete={(res) => handleFileUpload(res, index)}
+                          onUploadError={(error: Error) => {
+                            toast.error(`Upload ERROR! ${error.message}`);
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => remove(index)}
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <div className="mb-4 ml-2">
                 <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="ml-auto"
-                onClick={() => append({
-                  barCode: '',
-                  name: '',
-                  itemDesc: '',
-                  images: [],
-                  price: 0,
-                  categoryId: '',
-                  colorId: '',
-                  sizeId: '',
-                  isFeatured: false,
-                  isArchived: false,
-                })}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Another Product
-              </Button>
-                </div>
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="ml-auto"
+                  onClick={() => append({
+                    barCode: '',
+                    name: '',
+                    itemDesc: '',
+                    images: [],
+                    price: 0,
+                    categoryId: '',
+                    colorId: '',
+                    sizeId: '',
+                    uomId: '',
+                    isFeatured: false,
+                    isArchived: false,
+                  })}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Another Product
+                </Button>
               </div>
+            </div>
           ) : (
             fields.map((field, index) => (
               <Card key={field.id} className="p-4">
@@ -681,6 +704,35 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     />
                     <FormField
                       control={form.control}
+                      name={`products.${index}.uomId`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Unit of Measure</FormLabel>
+                          <Select 
+                            disabled={loading} 
+                            onValueChange={field.onChange} 
+                            value={field.value || ''} 
+                            defaultValue={field.value || ''}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue defaultValue={field.value || ''} placeholder="Select a UoM" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {uoms.map((uom) => (
+                                <SelectItem key={uom.id} value={uom.id}>
+                                  {uom.UoM}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
                       name={`products.${index}.isFeatured`}
                       render={({ field }) => (
                         <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
@@ -696,28 +748,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                             </FormLabel>
                             <FormDescription>
                               This product will appear on the home page
-                            </FormDescription>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`products.${index}.isArchived`}
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>
-                              Archived
-                            </FormLabel>
-                            <FormDescription>
-                              This product will not appear anywhere in the store.
                             </FormDescription>
                           </div>
                         </FormItem>
