@@ -2,7 +2,7 @@
 
 import * as z from "zod";
 import { useState, useTransition } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { RegisterUserSchema } from "@/schemas";
@@ -16,14 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { registerUser } from "@/actions/queries";
+import { registerUserOld } from "@/actions/queries";
 import {
   Dialog,
   DialogHeader,
@@ -52,7 +45,7 @@ export const RegisterForm = () => {
     setError("");
     setSuccess("");
     startTransition(() => {
-      registerUser(values)
+      registerUserOld(values)
         .then((data) => {
           setError(data.error);
           setSuccess(data.success);

@@ -164,3 +164,36 @@ import { getCurrentUser } from "@/hooks/use-current-user";
       return { error: "An unexpected error occurred" }
     }
   }
+
+  export const registerUserOld = async (values: z.infer<typeof RegisterUserSchema>) => {
+    try {
+      const validatedFields = RegisterUserSchema.parse(values)
+  
+      const { email, password, name } = validatedFields
+  
+      const existingUser = await prismadb.user.findUnique({
+        where: { email }
+      })
+  
+      if (existingUser) {
+        return { error: "Email already in use!" }
+      }
+  
+      const hashedPassword = await bcrypt.hash(password, 10)
+  
+      await prismadb.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+        }
+      })
+  
+      return { success: "User created successfully!" }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return { error: error.errors[0].message }
+      }
+      return { error: "An unexpected error occurred" }
+    }
+  }
