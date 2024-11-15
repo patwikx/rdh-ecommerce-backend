@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useParams, usePathname } from "next/navigation";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { LayoutGrid, ChevronDown, Home, Image, FolderTree, Package, ShoppingCart, Settings, Ruler, Palette, Scale, FileText } from 'lucide-react';
+import { LayoutGrid, ChevronDown, Home, Image, FolderTree, Package, ShoppingCart, Settings, Ruler, Palette, Scale, FileText, User } from 'lucide-react';
 
 import { cn } from "@/lib/utils"
 import {
@@ -55,6 +55,12 @@ export function MainNav({
       label: 'Orders',
       icon: ShoppingCart,
       active: pathname === `/${params.storeId}/orders`,
+    },
+    {
+      href: `/${params.storeId}/user-management`,
+      label: 'User Management',
+      icon: User,
+      active: pathname === `/${params.storeId}/user-management`,
     },
     {
       href: `/${params.storeId}/settings`,

@@ -1,6 +1,6 @@
 'use server'
 
-import { NewPasswordSchema, RegisterTenantSchema, RegisterUserSchema, ResetSchema, SettingsSchema } from "@/schemas";
+import { NewPasswordSchema, RegisterTenantSchema, RegisterUserSchema, ResetSchema, SettingsSchema, UserRegisterSchema } from "@/schemas";
 
 import {  getUserByEmail, getUserById } from "@/data/user";
 
@@ -131,34 +131,36 @@ import { getCurrentUser } from "@/hooks/use-current-user";
     return { success: "Password updated!" };
   };
 
-
-
-
-  export const registerUser = async (values: z.infer<typeof RegisterUserSchema>) => {
-    const validatedFields = RegisterUserSchema.safeParse(values);
+  export const registerUser = async (values: z.infer<typeof UserRegisterSchema>) => {
+    try {
+      const validatedFields = UserRegisterSchema.parse(values)
   
-    if (!validatedFields.success) {
-      return { error: "Invalid fields!" };
+      const { email, password, name, storeId } = validatedFields
+  
+      const existingUser = await prismadb.user.findUnique({
+        where: { email }
+      })
+  
+      if (existingUser) {
+        return { error: "Email already in use!" }
+      }
+  
+      const hashedPassword = await bcrypt.hash(password, 10)
+  
+      await prismadb.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+          storeId
+        }
+      })
+  
+      return { success: "User created successfully!" }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return { error: error.errors[0].message }
+      }
+      return { error: "An unexpected error occurred" }
     }
-  
-    const { email, password, name } = validatedFields.data;
-    const hashedPassword = await bcrypt.hash(password, 10);
-  
-    const existingUser = await getUserByEmail(email);
-  
-    if (existingUser) {
-      return { error: "Email already in use!" };
-    }
-  
-    await prismadb.user.create({
-      data: {
-        email,
-        name,
-        password: hashedPassword,
-      },
-    });
-
-    return { success: "Confirmation email sent!" };
-  };
-
-  
+  }
