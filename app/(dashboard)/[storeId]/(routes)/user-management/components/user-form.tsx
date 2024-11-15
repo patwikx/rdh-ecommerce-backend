@@ -4,7 +4,7 @@ import * as z from "zod"
 import { useState, useTransition, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useRouter } from "next/navigation"
+
 
 import { UserRegisterSchema } from "@/schemas"
 import { Input } from "@/components/ui/input"
@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button"
 import { registerUser } from "@/actions/queries"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ToastAction } from "@/components/ui/toast"
+import { useToast } from "@/hooks/use-toast"
 
 interface UserRegisterFormProps {
   storeId: string
@@ -32,7 +34,7 @@ export const UserRegisterForm: React.FC<UserRegisterFormProps> = ({ storeId, onU
   const [success, setSuccess] = useState<string | undefined>("")
   const [isPending, startTransition] = useTransition()
   const [isOpen, setIsOpen] = useState(false)
-  const router = useRouter()
+  const { toast } = useToast()
 
   const form = useForm<z.infer<typeof UserRegisterSchema>>({
     resolver: zodResolver(UserRegisterSchema),
@@ -54,7 +56,7 @@ export const UserRegisterForm: React.FC<UserRegisterFormProps> = ({ storeId, onU
       setError("Store ID is required")
       return
     }
-
+  
     setError("")
     setSuccess("")
     
@@ -76,11 +78,13 @@ export const UserRegisterForm: React.FC<UserRegisterFormProps> = ({ storeId, onU
               storeId: storeId,
               roleId: ""
             })
-            setTimeout(() => {
-              setIsOpen(false)
-              onUserCreated()
-              router.refresh()
-            }, 2000)
+            toast({
+              title: "User created successfully.",
+              description: "The new user has been added to the system.",
+              duration: 5000,
+            })
+            setIsOpen(false)
+            onUserCreated()
           }
         })
         .catch((err) => {
