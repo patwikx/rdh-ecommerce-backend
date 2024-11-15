@@ -19,13 +19,15 @@ import {
 import { Button } from "@/components/ui/button"
 import { registerUser } from "@/actions/queries"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface UserRegisterFormProps {
   storeId: string
   onUserCreated: () => void
+  roles: { id: string; role: string }[]
 }
 
-export const UserRegisterForm: React.FC<UserRegisterFormProps> = ({ storeId, onUserCreated }) => {
+export const UserRegisterForm: React.FC<UserRegisterFormProps> = ({ storeId, onUserCreated, roles }) => {
   const [error, setError] = useState<string | undefined>("")
   const [success, setSuccess] = useState<string | undefined>("")
   const [isPending, startTransition] = useTransition()
@@ -38,7 +40,8 @@ export const UserRegisterForm: React.FC<UserRegisterFormProps> = ({ storeId, onU
       email: "",
       password: "",
       name: "",
-      storeId: storeId
+      storeId: storeId,
+      roleId: ""
     },
   })
 
@@ -70,12 +73,13 @@ export const UserRegisterForm: React.FC<UserRegisterFormProps> = ({ storeId, onU
               email: "",
               password: "",
               name: "",
-              storeId: storeId
+              storeId: storeId,
+              roleId: ""
             })
             setTimeout(() => {
               setIsOpen(false)
-              onUserCreated() // Call the callback function
-              router.refresh() // Refresh the page
+              onUserCreated()
+              router.refresh()
             }, 2000)
           }
         })
@@ -142,6 +146,30 @@ export const UserRegisterForm: React.FC<UserRegisterFormProps> = ({ storeId, onU
                         type="password"
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="roleId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-semibold">Role</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {roles.map((role) => (
+                          <SelectItem key={role.id} value={role.id}>
+                            {role.role}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

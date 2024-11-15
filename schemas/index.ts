@@ -60,6 +60,9 @@ export const RegisterUserSchema = z.object({
   }),
   name: z.string().min(1, {
     message: "First Name is required",
+  }),
+  roleId: z.string().min(1, {
+    message: "role Id is requried"
   })
 });
 
@@ -75,6 +78,9 @@ export const UserRegisterSchema = z.object({
   }),
   storeId: z.string().min(1, {
     message: "StoreId is required."
+  }),
+  roleId: z.string().min(1, {
+    message: "role Id is required."
   })
 });
 

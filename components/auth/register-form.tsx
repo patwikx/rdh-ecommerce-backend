@@ -38,6 +38,7 @@ export const RegisterForm = () => {
       email: "",
       password: "",
       name: "",
+      roleId: "cm3i4s11k0000zy20d8rh8vel"
     },
   });
 

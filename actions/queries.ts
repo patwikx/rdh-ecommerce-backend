@@ -135,7 +135,7 @@ import { getCurrentUser } from "@/hooks/use-current-user";
     try {
       const validatedFields = UserRegisterSchema.parse(values)
   
-      const { email, password, name, storeId } = validatedFields
+      const { email, password, name, storeId, roleId } = validatedFields
   
       const existingUser = await prismadb.user.findUnique({
         where: { email }
@@ -152,7 +152,8 @@ import { getCurrentUser } from "@/hooks/use-current-user";
           name,
           email,
           password: hashedPassword,
-          storeId
+          storeId,
+          roleId
         }
       })
   
@@ -169,7 +170,7 @@ import { getCurrentUser } from "@/hooks/use-current-user";
     try {
       const validatedFields = RegisterUserSchema.parse(values)
   
-      const { email, password, name } = validatedFields
+      const { email, password, name, roleId } = validatedFields
   
       const existingUser = await prismadb.user.findUnique({
         where: { email }
@@ -186,6 +187,7 @@ import { getCurrentUser } from "@/hooks/use-current-user";
           name,
           email,
           password: hashedPassword,
+          roleId
         }
       })
   

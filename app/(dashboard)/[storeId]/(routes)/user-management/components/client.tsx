@@ -16,9 +16,10 @@ import { UserRegisterForm } from './user-form';
 interface UserClientProps {
   data: UserColumn[]
   storeId: string
+  roles: { id: string; role: string }[]
 }
 
-export const UserClient: React.FC<UserClientProps> = ({ data, storeId }) => {
+export const UserClient: React.FC<UserClientProps> = ({ data, storeId, roles }) => {
   const router = useRouter()
 
   const handleUserCreated = () => {
@@ -29,7 +30,7 @@ export const UserClient: React.FC<UserClientProps> = ({ data, storeId }) => {
     <>
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Users</h2>
-        <UserRegisterForm storeId={storeId} onUserCreated={handleUserCreated} />
+        <UserRegisterForm storeId={storeId} onUserCreated={handleUserCreated} roles={roles} />
       </div>
       <Separator />
       <DataTable searchKey="name" columns={columns} data={data} />
