@@ -5,7 +5,6 @@ import axios from "axios"
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { toast } from "react-hot-toast"
 import { Trash } from "lucide-react"
 import { Color } from "@prisma/client"
 import { useParams, useRouter } from "next/navigation"
@@ -23,6 +22,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { AlertModal } from "@/components/modals/alert-modal"
 import { Heading } from "@/components/ui/heading"
+import { useToast } from "@/hooks/use-toast"
 
 const formSchema = z.object({
   name: z.string().min(2),
@@ -42,6 +42,7 @@ export const ColorForm: React.FC<ColorFormProps> = ({
 }) => {
   const params = useParams();
   const router = useRouter();
+  const { toast } = useToast();
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -68,9 +69,16 @@ export const ColorForm: React.FC<ColorFormProps> = ({
       }
       router.refresh();
       router.push(`/${params.storeId}/colors`);
-      toast.success(toastMessage);
+      toast({
+        title: initialData ? "Color Updated" : "Color Created",
+        description: initialData ? "Your color has been updated successfully." : "Your color have been created successfully.",
+      });
     } catch (error: any) {
-      toast.error('Something went wrong.');
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -82,9 +90,16 @@ export const ColorForm: React.FC<ColorFormProps> = ({
       await axios.delete(`/api/${params.storeId}/colors/${params.colorId}`);
       router.refresh();
       router.push(`/${params.storeId}/colors`);
-      toast.success('Color deleted.');
+      toast({
+        title: "Color",
+        description: "Color successfully deleted.",
+      });
     } catch (error: any) {
-      toast.error('Make sure you removed all products using this color first.');
+      toast({
+        title: "Error",
+        description: "Make sure you removed all products that is using this color first.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
       setOpen(false);

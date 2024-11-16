@@ -3,7 +3,6 @@
 import axios from "axios";
 import { useState } from "react";
 import { Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
-import { toast } from "react-hot-toast";
 import { useParams, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,7 @@ import {
 import { AlertModal } from "@/components/modals/alert-modal";
 
 import { BillboardColumn } from "./columns";
+import { useToast } from "@/hooks/use-toast";
 
 interface CellActionProps {
   data: BillboardColumn;
@@ -29,15 +29,23 @@ export const CellAction: React.FC<CellActionProps> = ({
   const params = useParams();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const onConfirm = async () => {
     try {
       setLoading(true);
       await axios.delete(`/api/${params.storeId}/billboards/${data.id}`);
-      toast.success('Billboard deleted.');
+      toast({
+        title: "Billboard",
+        description: "Billboard successfully deleted.",
+      });
       router.refresh();
     } catch (error) {
-      toast.error('Make sure you removed all categories using this billboard first.');
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setOpen(false);
       setLoading(false);
@@ -46,7 +54,10 @@ export const CellAction: React.FC<CellActionProps> = ({
 
   const onCopy = (id: string) => {
     navigator.clipboard.writeText(id);
-    toast.success('Billboard ID copied to clipboard.');
+    toast({
+      title: "Billboard",
+      description: "Billboard ID copied to clipboard.",
+    });
   }
 
   return (

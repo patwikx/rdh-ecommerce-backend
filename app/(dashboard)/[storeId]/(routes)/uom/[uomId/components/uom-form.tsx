@@ -5,7 +5,6 @@ import axios from "axios"
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { toast } from "react-hot-toast"
 import { Trash } from "lucide-react"
 import { UoM } from "@prisma/client"
 import { useParams, useRouter } from "next/navigation"
@@ -23,6 +22,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { AlertModal } from "@/components/modals/alert-modal"
 import { Heading } from "@/components/ui/heading"
+import { useToast } from "@/hooks/use-toast"
 
 const formSchema = z.object({
   UoM: z.string().min(2),
@@ -39,6 +39,7 @@ export const UoMForm: React.FC<UoMFormProps> = ({
 }) => {
   const params = useParams();
   const router = useRouter();
+  const { toast } = useToast();
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -65,9 +66,16 @@ export const UoMForm: React.FC<UoMFormProps> = ({
       }
       router.refresh();
       router.push(`/${params.storeId}/uom`);
-      toast.success(toastMessage);
+      toast({
+        title: initialData ? "Unit of Measure Updated" : "Unit of Measure Created",
+        description: initialData ? "Your UoM has been updated successfully." : "Your UoM have been created successfully.",
+      });
     } catch (error: any) {
-      toast.error('Something went wrong.');
+      toast({
+        title: "Error",
+        description: "Make sure you remove all categories using this billboard first.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -79,9 +87,16 @@ export const UoMForm: React.FC<UoMFormProps> = ({
       await axios.delete(`/api/${params.storeId}/uom/${params.uomId}`);
       router.refresh();
       router.push(`/${params.storeId}/uom`);
-      toast.success('UoM deleted.');
+      toast({
+        title: "Unit of Measure",
+        description: "Unit of Measure successfully deleted.",
+      });
     } catch (error: any) {
-      toast.error('Make sure you removed all products using this color first.');
+      toast({
+        title: "Error",
+        description: "Make sure you removed all products using this UoM first.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
       setOpen(false);

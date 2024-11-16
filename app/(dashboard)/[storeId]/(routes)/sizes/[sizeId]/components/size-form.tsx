@@ -5,7 +5,6 @@ import axios from "axios"
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { toast } from "react-hot-toast"
 import { Trash } from "lucide-react"
 import { Size } from "@prisma/client"
 import { useParams, useRouter } from "next/navigation"
@@ -23,6 +22,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { Heading } from "@/components/ui/heading"
 import { AlertModal } from "@/components/modals/alert-modal"
+import { useToast } from "@/hooks/use-toast"
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -40,6 +40,7 @@ export const SizeForm: React.FC<SizeFormProps> = ({
 }) => {
   const params = useParams();
   const router = useRouter();
+  const { toast } = useToast();
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -66,9 +67,16 @@ export const SizeForm: React.FC<SizeFormProps> = ({
       }
       router.refresh();
       router.push(`/${params.storeId}/sizes`);
-      toast.success(toastMessage);
+      toast({
+        title: initialData ? "Size Updated" : "Size Created",
+        description: initialData ? "Your size has been updated successfully." : "Your size have been created successfully.",
+      });
     } catch (error: any) {
-      toast.error('Something went wrong.');
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -80,9 +88,16 @@ export const SizeForm: React.FC<SizeFormProps> = ({
       await axios.delete(`/api/${params.storeId}/sizes/${params.sizeId}`);
       router.refresh();
       router.push(`/${params.storeId}/sizes`);
-      toast.success('Size deleted.');
+      toast({
+        title: "Size",
+        description: "Size successfully deleted.",
+      });
     } catch (error: any) {
-      toast.error('Make sure you removed all products using this size first.');
+      toast({
+        title: "Error",
+        description: "Make sure you removed all products using this size first.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
       setOpen(false);

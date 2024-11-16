@@ -5,7 +5,6 @@ import axios from "axios"
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { toast } from "react-hot-toast"
 import { Trash } from "lucide-react"
 import { Billboard } from "@prisma/client"
 import { useParams, useRouter } from "next/navigation"
@@ -27,6 +26,7 @@ import { Label } from "@/components/ui/label"
 
 import type { OurFileRouter } from "@/app/api/uploadthing/core" 
 import { Heading } from "@/components/ui/heading"
+import { useToast } from "@/hooks/use-toast"
 
 type UploadThingFile = {
   url: string;
@@ -49,6 +49,7 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
 }) => {
   const params = useParams();
   const router = useRouter();
+  const { toast } = useToast();
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -78,9 +79,16 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
       }
       router.refresh();
       router.push(`/${params.storeId}/billboards`);
-      toast.success(toastMessage);
+      toast({
+        title: initialData ? "Billboard Updated" : "Billboard Created",
+        description: initialData ? "Your billboard has been updated successfully." : "Your billboard have been created successfully.",
+      });
     } catch (error: any) {
-      toast.error('Something went wrong.');
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -92,9 +100,16 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
       await axios.delete(`/api/${params.storeId}/billboards/${params.billboardId}`);
       router.refresh();
       router.push(`/${params.storeId}/billboards`);
-      toast.success('Billboard deleted.');
+      toast({
+        title: "Billboard",
+        description: "Billboard successfully deleted.",
+      });
     } catch (error: any) {
-      toast.error('Make sure you removed all categories using this billboard first.');
+      toast({
+        title: "Error",
+        description: "Make sure you removed all categories using this billboard first.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
       setOpen(false);
@@ -111,7 +126,10 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
       // Set the first uploaded file URL to the imageUrl field
       form.setValue('imageUrl', fileUrls[0]);
       
-      toast.success("Upload Completed");
+      toast({
+        title: "Upload",
+        description: "Upload completed successfully.",
+      });
     }
   };
 
@@ -148,7 +166,11 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
                     endpoint="image"
                     onClientUploadComplete={handleFileUpload}
                     onUploadError={(error: Error) => {
-                      toast.error(`Upload ERROR! ${error.message}`);
+                      toast({
+                        title: "Error",
+                        description: "Something went wrong. Please try again.",
+                        variant: "destructive",
+                      });
                     }}
                   />
                   <div className="flex flex-col items-center">

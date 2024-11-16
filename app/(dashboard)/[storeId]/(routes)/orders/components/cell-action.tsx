@@ -4,8 +4,6 @@ import axios from "axios";
 import { BadgeDollarSign, MoreHorizontal, ShoppingBagIcon, Truck } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
-
 import { Button } from "@/components/ui/button";
 import { 
   Dialog,
@@ -28,6 +26,8 @@ import { OrderColumn } from "./columns";
 // Import the necessary types from upload-thing
 import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import { UploadButton } from "@uploadthing/react";
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 interface CellActionProps {
   data: OrderColumn;
@@ -43,6 +43,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [deliveryFileNames, setDeliveryFileNames] = useState<string[]>([]);
   const router = useRouter();
   const params = useParams();
+  const { toast } = useToast();
 
   const handleFileUpload = (res: any) => {
     setUploadedFileNames(res.map((file: any) => file.url));
@@ -60,10 +61,18 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         storeRemarks: deliveryNotes,
         storeAttachedUrl: deliveryFileNames[0] // This now contains the URL
       });
-      toast.success('Order marked as delivered.');
+      toast({
+        title: "Fullfill Order",
+        description: "Your order has been successfully marked as ordered.",
+        action: <ToastAction altText="View products">View</ToastAction>,
+      });
       router.refresh();
     } catch (error) {
-      toast.error('Something went wrong');
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
       setOpenDeliveredDialog(false);
@@ -78,10 +87,18 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         acctgRemarks: notes,
         acctgAttachedUrl: uploadedFileNames[0] // This now contains the URL
       });
-      toast.success('Order marked as paid.');
+      toast({
+        title: "Payment Processing",
+        description: "Order has been successfully marked as paid.",
+        action: <ToastAction altText="View products">View</ToastAction>,
+      });
       router.refresh();
     } catch (error) {
-      toast.error('Something went wrong');
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
       setOpenPaidDialog(false);
@@ -112,7 +129,11 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
                   endpoint="storeAttachedUrl"
                   onClientUploadComplete={handleDeliveryFileUpload}
                   onUploadError={(error: Error) => {
-                    toast.error(`Upload ERROR! ${error.message}`)
+                    toast({
+                      title: "Error",
+                      description: "Something went wrong. Please try again.",
+                      variant: "destructive",
+                    });
                   }}
                 />
                 <span className="text-gray-500 mt-2">Drag & Drop or Click to Upload</span>
@@ -157,7 +178,11 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
                   endpoint="approvedPOUrl"
                   onClientUploadComplete={handleFileUpload}
                   onUploadError={(error: Error) => {
-                    toast.error(`Upload ERROR! ${error.message}`)
+                    toast({
+                      title: "Error",
+                      description: "Something went wrong. Please try again.",
+                      variant: "destructive",
+                    });
                   }}
                 />
                 <span className="text-gray-500 mt-2">Drag & Drop or Click to Upload</span>

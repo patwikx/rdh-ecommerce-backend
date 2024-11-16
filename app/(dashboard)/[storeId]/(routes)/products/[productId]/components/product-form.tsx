@@ -5,7 +5,6 @@ import axios from "axios"
 import { useState, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useFieldArray, useForm } from "react-hook-form"
-import { toast } from "react-hot-toast"
 import { Loader, Plus, Trash, Upload } from 'lucide-react'
 import { Category, Color, Image, Product, Size, UoM } from "@prisma/client"
 import { useParams, useRouter } from "next/navigation"

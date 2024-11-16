@@ -5,7 +5,6 @@ import axios from "axios"
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { toast } from "react-hot-toast"
 import { Trash } from "lucide-react"
 import { Billboard, Category } from "@prisma/client"
 import { useParams, useRouter } from "next/navigation"
@@ -24,6 +23,7 @@ import { Separator } from "@/components/ui/separator"
 import { AlertModal } from "@/components/modals/alert-modal"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Heading } from "@/components/ui/heading"
+import { useToast } from "@/hooks/use-toast"
 
 const formSchema = z.object({
   name: z.string().min(2),
@@ -43,6 +43,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
 }) => {
   const params = useParams();
   const router = useRouter();
+  const { toast } = useToast();
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -70,9 +71,16 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       }
       router.refresh();
       router.push(`/${params.storeId}/categories`);
-      toast.success(toastMessage);
+      toast({
+        title: initialData ? "Category Updated" : "Category Created",
+        description: initialData ? "Your category has been updated successfully." : "Your category have been created successfully.",
+      });
     } catch (error: any) {
-      toast.error('Something went wrong.');
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -84,9 +92,16 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       await axios.delete(`/api/${params.storeId}/categories/${params.categoryId}`);
       router.refresh();
       router.push(`/${params.storeId}/categories`);
-      toast.success('Category deleted.');
+      toast({
+        title: "Category",
+        description: "Category successfully deleted.",
+      });
     } catch (error: any) {
-      toast.error('Make sure you removed all products using this category first.');
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
       setOpen(false);
