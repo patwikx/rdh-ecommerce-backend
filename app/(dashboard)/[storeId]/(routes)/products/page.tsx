@@ -1,9 +1,11 @@
 import { format } from "date-fns";
 import { formatter } from "@/lib/utils";
 
-import { ProductsClient } from "./components/client";
+
 import { ProductColumn } from "./components/columns";
 import prismadb from "@/lib/db";
+import { ProductsClient } from "./components/client";
+
 
 const ProductsPage = async ({
   params

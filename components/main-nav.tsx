@@ -145,7 +145,7 @@ export function MainNav({
             )}
           >
             <LayoutGrid className="w-4 h-4 mr-2" />
-            Catalog
+            Product Management
             <motion.div
               animate={{ rotate: isCatalogOpen ? 180 : 0 }}
               transition={{ duration: 0.2 }}
@@ -161,7 +161,7 @@ export function MainNav({
           sideOffset={8}
         >
           <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">
-            Catalog Management
+          Product Management
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           {catalogRoutes.map((route) => {
