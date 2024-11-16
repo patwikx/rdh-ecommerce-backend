@@ -70,7 +70,7 @@ export function Headerx() {
                 {user?.email || 'user@example.com'}
               </p>
               <Badge variant="secondary" className="mt-1">
-                Administrator
+                {user?.role}
               </Badge>
             </div>
           </div>

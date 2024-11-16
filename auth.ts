@@ -36,7 +36,7 @@ export const {
         session.user.name = token.name as string
         session.user.email = token.email
         session.user.id = token.id as string
-        session.user.storeId = token.storeId as string
+        session.user.role = token.role as string
       }
       return session
     },
@@ -49,7 +49,7 @@ export const {
       token.name = existingUser.name
       token.email = existingUser.email
       token.id = existingUser.id
-      token.storeId = existingUser.storeId
+      token.role = existingUser.roleId
       return token
     },
   },

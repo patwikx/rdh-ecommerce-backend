@@ -4,8 +4,6 @@ import axios from "axios";
 import { Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "react-hot-toast";
-
 import { AlertModal } from "@/components/modals/alert-modal";
 import { Button } from "@/components/ui/button";
 import { 
@@ -17,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { ProductColumn } from "./columns";
+import { useToast } from "@/hooks/use-toast";
 
 interface CellActionProps {
   data: ProductColumn;
@@ -30,14 +29,23 @@ export const CellAction: React.FC<CellActionProps> = ({
   const router = useRouter();
   const params = useParams();
 
+  const { toast } = useToast();
+
   const onConfirm = async () => {
     try {
       setLoading(true);
       await axios.delete(`/api/${params.storeId}/products/${data.id}`);
-      toast.success('Product deleted.');
+      toast({
+        title: "Product Deleted",
+        description: "The product has been deleted successfully.",
+      });
       router.refresh();
     } catch (error) {
-      toast.error('Something went wrong');
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
       setOpen(false);
@@ -46,7 +54,10 @@ export const CellAction: React.FC<CellActionProps> = ({
 
   const onCopy = (id: string) => {
     navigator.clipboard.writeText(id);
-    toast.success('Product ID copied to clipboard.');
+    toast({
+      title: "Product",
+      description: "The product ID has been copied to clipboard.",
+    });
   }
 
   return (
