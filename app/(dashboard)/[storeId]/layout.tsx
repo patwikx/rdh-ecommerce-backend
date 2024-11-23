@@ -5,7 +5,10 @@ import prismadb from '@/lib/db'
 import Navbar from '@/components/navbar'
 import { Toaster } from '@/components/ui/toaster'
 
-
+export const metadata = {
+  title: 'RDHFSI Dashboard',
+  description: 'RDHFSI E-Commerce',
+}
 
 
 export default async function DashboardLayout({

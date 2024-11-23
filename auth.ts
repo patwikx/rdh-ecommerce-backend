@@ -20,6 +20,7 @@ export const {
   ...authConfig,
   pages: {
     signIn: "/auth/sign-in",
+    error: "/auth/error",
   },
   callbacks: {
     async signIn({ user, account }) {
@@ -54,3 +55,4 @@ export const {
     },
   },
 })
+

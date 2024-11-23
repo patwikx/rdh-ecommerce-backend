@@ -2,11 +2,10 @@
 
 import { signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Button } from './ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
-import { Badge } from './ui/badge'
-import { LogOut, Package, Settings, CreditCard, Bell, Shield, Star, User } from 'lucide-react'
+import { LogOut, CreditCard, Bell, Star, User, ChevronDown } from 'lucide-react'
 import { useCurrentUser } from '@/lib/auth'
 
 export function Headerx() {
@@ -21,104 +20,60 @@ export function Headerx() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="relative h-9 w-9 rounded-full"
-        >
-          <Avatar className="h-9 w-9">
+        <Button variant="outline" className="h-12 w-full justify-start gap-2 px-3 py-2">
+          <Avatar className="h-8 w-8 rounded-lg">
             {user?.image ? (
               <AvatarImage 
                 src={user.image} 
                 alt={user?.name || ''} 
-                className="object-cover"
+                className="object-cover rounded-lg"
               />
             ) : (
-              <AvatarFallback>
+              <AvatarFallback className="rounded-lg">
                 {user?.name?.charAt(0) || 'U'}
               </AvatarFallback>
             )}
           </Avatar>
-          <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-500 border-2 border-background" />
+          <div className="flex flex-col items-start">
+            <span className="text-sm font-medium">{user?.name || 'User'}</span>
+            <span className="text-xs text-muted-foreground">{user?.email || 'user@example.com'}</span>
+          </div>
+          <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end" 
-        className="w-[280px] p-0"
+        className="w-[200px]"
         sideOffset={5}
       >
-        <div className="flex flex-col space-y-4 p-4">
-          <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16">
-              {user?.image ? (
-                <AvatarImage 
-                  src={user.image} 
-                  alt={user?.name || ''} 
-                  className="object-cover"
-                />
-              ) : (
-                <AvatarFallback className="text-lg">
-                  {user?.name?.charAt(0) || 'U'}
-                </AvatarFallback>
-              )}
-            </Avatar>
-            <div className="space-y-1">
-              <h3 className="text-base font-semibold leading-none">
-                {user?.name || 'User'}
-              </h3>
-              <p className="text-sm text-muted-foreground truncate max-w-[160px]">
-                {user?.email || 'user@example.com'}
-              </p>
-              <Badge variant="secondary" className="mt-1">
-                {user?.role}
-              </Badge>
-            </div>
-          </div>
-        </div>
-        <div className="h-px bg-border" />
-        <div className="grid grid-cols-2 gap-0.5">
-          <DropdownMenuItem 
-            onClick={() => router.push("/my-orders")}
-            className="flex flex-col items-center gap-2 p-4 focus:bg-accent"
-          >
-            <Package className="h-5 w-5" />
-            <span className="text-xs">My Orders</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem 
-            onClick={() => router.push("/settings")}
-            className="flex flex-col items-center gap-2 p-4 focus:bg-accent"
-          >
-            <Settings className="h-5 w-5" />
-            <span className="text-xs">Settings</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem 
-            onClick={() => router.push("/billing")}
-            className="flex flex-col items-center gap-2 p-4 focus:bg-accent"
-          >
-            <CreditCard className="h-5 w-5" />
-            <span className="text-xs">Billing</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem 
-            onClick={() => router.push("/notifications")}
-            className="flex flex-col items-center gap-2 p-4 focus:bg-accent"
-          >
-            <Bell className="h-5 w-5" />
-            <span className="text-xs">Notifications</span>
-          </DropdownMenuItem>
-        </div>
-        <div className="h-px bg-border" />
-        <div className="p-2">
-          <DropdownMenuItem 
-            onClick={handleLogout}
-            className="flex w-full items-center gap-2 rounded-md p-2 text-red-500 focus:text-red-500"
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Log out</span>
-          </DropdownMenuItem>
-        </div>
+        <DropdownMenuItem>
+          <Star className="mr-2 h-4 w-4" />
+          <span>Upgrade to Pro</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push("/settings")}>
+          <User className="mr-2 h-4 w-4" />
+          <span>Account</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push("/billing")}>
+          <CreditCard className="mr-2 h-4 w-4" />
+          <span>Billing</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push("/notifications")}>
+          <Bell className="mr-2 h-4 w-4" />
+          <span>Notifications</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem 
+          onClick={handleLogout}
+          className="text-red-500 focus:text-red-500"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Log out</span>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
 }
 
 export default Headerx
+

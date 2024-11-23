@@ -6,9 +6,6 @@ import { LoginSchema } from "@/schemas"
 import { getUserByEmail } from "@/data/user"
 
 export const authConfig = {
-  pages: {
-    signIn: "/auth/sign-in",
-  },
   callbacks: {
     async authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user
@@ -25,7 +22,8 @@ export const authConfig = {
 
       if (isOnDashboard) {
         if (isLoggedIn) return true
-        return Response.redirect(new URL('/auth/sign-in', nextUrl))
+        // Instead of redirecting, we'll return false and handle the redirect in the component
+        return false
       }
 
       return true
@@ -52,3 +50,4 @@ export const authConfig = {
     }),
   ],
 } satisfies NextAuthConfig
+

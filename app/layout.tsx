@@ -9,12 +9,13 @@ import { ThemeProvider } from '@/providers/theme-provider'
 import './globals.css'
 import SessionWrapper from '@/components/session-provider'
 import { IdleTimer } from '@/components/idle-timer'
+import { Toaster } from '@/components/ui/sonner'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'Dashboard',
-  description: 'E-Commerce Dashboard',
+  title: 'RDHFSI E-Commerce System',
+  description: 'E-Commerce',
 }
 
 export default async function RootLayout({
@@ -34,6 +35,7 @@ export default async function RootLayout({
             <ToastProvider />
             <ModalProvider />
             {children}
+            <Toaster />
             <IdleTimer />
           </ThemeProvider>
         </body>
