@@ -46,18 +46,6 @@ export function Headerx() {
         className="w-[200px]"
         sideOffset={5}
       >
-        <DropdownMenuItem>
-          <Star className="mr-2 h-4 w-4" />
-          <span>Upgrade to Pro</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push("/settings")}>
-          <User className="mr-2 h-4 w-4" />
-          <span>Account</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push("/billing")}>
-          <CreditCard className="mr-2 h-4 w-4" />
-          <span>Billing</span>
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => router.push("/notifications")}>
           <Bell className="mr-2 h-4 w-4" />
           <span>Notifications</span>
