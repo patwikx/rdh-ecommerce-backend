@@ -3,6 +3,8 @@
 import prismadb from "@/lib/db";
 import { ProductForm } from "./components/product-form";
 
+
+
 const ProductPage = async ({
   params
 }: {
@@ -41,10 +43,12 @@ const ProductPage = async ({
     },
   });
 
+  
+
   return ( 
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
-        <ProductForm 
+        <ProductForm
           categories={categories} 
           colors={colors}
           sizes={sizes}

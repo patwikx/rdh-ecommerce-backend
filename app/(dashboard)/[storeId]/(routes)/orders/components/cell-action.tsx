@@ -28,6 +28,7 @@ import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import { UploadButton } from "@uploadthing/react";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
+import { useCurrentUser } from "@/lib/auth";
 
 interface CellActionProps {
   data: OrderColumn;
@@ -44,6 +45,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
+  const user = useCurrentUser();
 
   const handleFileUpload = (res: any) => {
     setUploadedFileNames(res.map((file: any) => file.url));
@@ -225,10 +227,20 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             <Truck className="mr-2 h-4 w-4" /> Mark as delivered
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => setOpenPaidDialog(true)}
-          >
-            <BadgeDollarSign className="mr-2 h-4 w-4" /> Mark as paid
-          </DropdownMenuItem>
+            onClick={() => {
+              if (user?.role !== "Acctg" && user?.role !== "Administrator") {
+              toast({
+                title: "Unauthorized",
+                description: "You are not authorized to mark this order as paid.",
+                variant: "destructive",
+                  });
+                  return;
+                }
+                setOpenPaidDialog(true);
+                }}
+                >
+  <BadgeDollarSign className="mr-2 h-4 w-4" /> Mark as paid
+</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

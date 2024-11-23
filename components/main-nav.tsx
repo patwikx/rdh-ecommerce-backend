@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
+import { useCurrentUser } from "@/lib/auth";
 
 export function MainNav({
   className,
@@ -25,6 +26,7 @@ export function MainNav({
   const params = useParams();
   const [isCatalogOpen, setIsCatalogOpen] = useState(false);
   const [isSystemOpen, setIsSystemOpen] = useState(false);
+  const user = useCurrentUser();
 
   const routes = [
     {
@@ -39,7 +41,6 @@ export function MainNav({
       icon: Image,
       active: pathname === `/${params.storeId}/billboards`,
     },
-
     {
       href: `/${params.storeId}/products`,
       label: 'Products',
@@ -52,24 +53,23 @@ export function MainNav({
       icon: ShoppingCart,
       active: pathname === `/${params.storeId}/orders`,
     },
-    
   ]
 
   const systemRoutes = [
-    {
+    ...(user?.role === 'Administrator' ? [{
       href: `/${params.storeId}/user-management`,
       label: 'User Management',
       icon: User,
       description: "Manage user accounts.",
       active: pathname === `/${params.storeId}/user-management`,
-    },
-    {
+    }] : []),
+    ...(user?.role === 'Administrator' ? [{
       href: `/${params.storeId}/settings`,
       label: 'Settings',
       icon: Settings,
       description: "Manage website settings.",
       active: pathname === `/${params.storeId}/settings`,
-    },
+    }] : []),
   ]
 
   const catalogRoutes = [
@@ -196,67 +196,74 @@ export function MainNav({
       </DropdownMenu>
 
       <DropdownMenu open={isSystemOpen} onOpenChange={setIsSystemOpen}>
-        <DropdownMenuTrigger asChild>
-          <Button 
-            variant={systemRoutes.some(route => route.active) ? "secondary" : "ghost"} 
-            className={cn(
-              "flex items-center px-3 py-2 text-sm font-medium transition-all",
-              "hover:bg-accent/50 hover:shadow-sm",
-              systemRoutes.some(route => route.active) 
-                ? 'bg-accent/60 text-accent-foreground shadow-sm' 
-                : 'text-muted-foreground hover:text-accent-foreground'
-            )}
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            System Settings
-            <motion.div
-              animate={{ rotate: isSystemOpen ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-              className="ml-2 inline-block"
-            >
-              <ChevronDown className="h-4 w-4" />
-            </motion.div>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent 
-          align="end" 
-          className="w-[220px] p-2"
-          sideOffset={8}
-        >
-          <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">
-            System Management
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          {systemRoutes.map((route) => {
-            const Icon = route.icon;
-            return (
-              <DropdownMenuItem key={route.href} asChild>
-                <Link href={route.href} className="w-full">
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={cn(
-                      'flex flex-col w-full rounded-md p-2 transition-all',
-                      'hover:bg-accent/50',
-                      route.active 
-                        ? 'bg-accent/60 text-accent-foreground' 
-                        : 'text-muted-foreground hover:text-accent-foreground'
-                    )}
-                  >
-                    <div className="flex items-center">
-                      <Icon className="w-4 h-4 mr-2" />
-                      <span className="font-medium">{route.label}</span>
-                    </div>
-                    <span className="ml-6 text-xs text-muted-foreground">
-                      {route.description}
-                    </span>
-                  </motion.div>
-                </Link>
-              </DropdownMenuItem>
-            );
-          })}
-        </DropdownMenuContent>
-      </DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <Button 
+      variant={systemRoutes.some(route => route.active) ? "secondary" : "ghost"} 
+      className={cn(
+        "flex items-center px-3 py-2 text-sm font-medium transition-all",
+        "hover:bg-accent/50 hover:shadow-sm",
+        systemRoutes.some(route => route.active) 
+          ? 'bg-accent/60 text-accent-foreground shadow-sm' 
+          : 'text-muted-foreground hover:text-accent-foreground'
+      )}
+    >
+      <Settings className="w-4 h-4 mr-2" />
+      System Settings
+      <motion.div
+        animate={{ rotate: isSystemOpen ? 180 : 0 }}
+        transition={{ duration: 0.2 }}
+        className="ml-2 inline-block"
+      >
+        <ChevronDown className="h-4 w-4" />
+      </motion.div>
+    </Button>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent 
+    align="end" 
+    className="w-[220px] p-2"
+    sideOffset={8}
+  >
+    <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">
+      System Management
+    </DropdownMenuLabel>
+    <DropdownMenuSeparator />
+    {user?.role === 'Administrator' ? (
+      systemRoutes.map((route) => {
+        const Icon = route.icon;
+        return (
+          <DropdownMenuItem key={route.href} asChild>
+            <Link href={route.href} className="w-full">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className={cn(
+                  'flex flex-col w-full rounded-md p-2 transition-all',
+                  'hover:bg-accent/50',
+                  route.active 
+                    ? 'bg-accent/60 text-accent-foreground' 
+                    : 'text-muted-foreground hover:text-accent-foreground'
+                )}
+              >
+                <div className="flex items-center">
+                  <Icon className="w-4 h-4 mr-2" />
+                  <span className="font-medium">{route.label}</span>
+                </div>
+                <span className="ml-6 text-xs text-muted-foreground">
+                  {route.description}
+                </span>
+              </motion.div>
+            </Link>
+          </DropdownMenuItem>
+        );
+      })
+    ) : (
+      <div className="text-center py-2 text-sm text-muted-foreground">
+        You&apos;re not authorized to view this
+      </div>
+    )}
+  </DropdownMenuContent>
+</DropdownMenu>
     </nav>
   )
 }
+

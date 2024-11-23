@@ -277,6 +277,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     setIsImportMode(false);
   };
 
+  const handleRemoveImage = (index: number, imageIndex: number) => {
+  const currentProducts = form.getValues('products');
+  if (currentProducts[index].images) {
+    currentProducts[index].images.splice(imageIndex, 1);
+  }
+  form.setValue('products', currentProducts);
+};
+
   return (
     <>
       <AlertModal 
@@ -314,7 +322,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           </div>
         )}
       </div>
-      <Separator />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full">
           {isImportMode ? (

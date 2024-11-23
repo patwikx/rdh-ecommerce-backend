@@ -49,7 +49,7 @@ export const {
       token.name = existingUser.name
       token.email = existingUser.email
       token.id = existingUser.id
-      token.role = existingUser.roleId
+      token.role = existingUser.role.role
       return token
     },
   },

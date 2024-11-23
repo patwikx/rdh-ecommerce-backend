@@ -13,9 +13,12 @@ export const getUserByEmail = async (email: string) => {
 
 export const getUserById = async (id: string) => {
   try {
-    const user = await prismadb.user.findUnique({ where: { id }, 
-     }
-    );
+    const user = await prismadb.user.findUnique({
+      where: { id },
+      include: {
+        role: true, // Include the related role
+      }
+    });
     
     return user;
   } catch {

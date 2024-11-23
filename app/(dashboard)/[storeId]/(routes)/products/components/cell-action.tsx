@@ -16,6 +16,7 @@ import {
 
 import { ProductColumn } from "./columns";
 import { useToast } from "@/hooks/use-toast";
+import { useCurrentUser } from "@/lib/auth";
 
 interface CellActionProps {
   data: ProductColumn;
@@ -28,6 +29,7 @@ export const CellAction: React.FC<CellActionProps> = ({
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const params = useParams();
+  const user = useCurrentUser();
 
   const { toast } = useToast();
 
@@ -52,11 +54,11 @@ export const CellAction: React.FC<CellActionProps> = ({
     }
   };
 
-  const onCopy = (id: string) => {
-    navigator.clipboard.writeText(id);
+  const onCopy = (barCode: string) => {
+    navigator.clipboard.writeText(barCode);
     toast({
       title: "Product",
-      description: "The product ID has been copied to clipboard.",
+      description: "The product barcode has been copied to clipboard.",
     });
   }
 
@@ -78,20 +80,40 @@ export const CellAction: React.FC<CellActionProps> = ({
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem
-            onClick={() => onCopy(data.id)}
+            onClick={() => onCopy(data.barCode)}
           >
-            <Copy className="mr-2 h-4 w-4" /> Copy Id
+            <Copy className="mr-2 h-4 w-4" /> Copy Barcode
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => router.push(`/${params.storeId}/products/${data.id}`)}
-          >
-            <Edit className="mr-2 h-4 w-4" /> Update
-          </DropdownMenuItem>
+  onClick={() => {
+    if (user?.role !== "Administrator" && user?.role !== "Acctg") {
+      toast({
+        title: "Unauthorized",
+        description: "You are not authorized to update this product.",
+        variant: "destructive",
+      });
+      return;
+    }
+    router.push(`/${params.storeId}/products/${data.id}`);
+  }}
+>
+  <Edit className="mr-2 h-4 w-4" /> Update
+</DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => setOpen(true)}
-          >
-            <Trash className="mr-2 h-4 w-4" /> Delete
-          </DropdownMenuItem>
+  onClick={() => {
+    if (user?.role !== "Administrator" && user?.role !== "Acctg") {
+      toast({
+        title: "Unauthorized",
+        description: "You are not authorized to delete this product.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setOpen(true);
+  }}
+>
+  <Trash className="mr-2 h-4 w-4" /> Delete
+</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

@@ -1,6 +1,5 @@
 "use client";
 
-import { Plus } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { ApiList } from "@/components/ui/api-list";
 
 import { columns, UoMColumn } from "./columns";
 import { Heading } from "@/components/ui/heading";
+import { UoMDialog } from "./uom-dialog";
 
 interface UoMClientProps {
   data: UoMColumn[];
@@ -25,9 +25,7 @@ export const UoMClient: React.FC<UoMClientProps> = ({
     <>
       <div className="flex items-center justify-between">
         <Heading title={`UoM (${data.length})`} description="Manage unit of measure for your products" />
-        <Button onClick={() => router.push(`/${params.storeId}/uom/new`)}>
-          <Plus className="mr-2 h-4 w-4" /> Add New
-        </Button>
+        <UoMDialog storeId={params.storeId as string} />
       </div>
       <Separator />
       <DataTable searchKey="name" columns={columns} data={data} />
@@ -37,3 +35,4 @@ export const UoMClient: React.FC<UoMClientProps> = ({
     </>
   );
 };
+

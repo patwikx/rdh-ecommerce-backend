@@ -33,8 +33,6 @@ export const OrdersForm: React.FC<OrderFormProps> = ({ initialData }) => {
     return amount?.toLocaleString('en-US', { style: 'currency', currency: 'PHP' }) || '₱0.00';
   };
 
-  console.log('PO URL:', initialData.attachedPOUrl);
-
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `

@@ -20,6 +20,7 @@ const ProductsPage = async ({
       category: true,
       size: true,
       color: true,
+      uom: true,
     },
     orderBy: {
       createdAt: 'desc'
@@ -33,6 +34,7 @@ const ProductsPage = async ({
     itemDesc: item.itemDesc || '',
     isFeatured: item.isFeatured,
     isArchived: item.isArchived,
+    UoM: item.uom ? item.uom.UoM : '',
     price: formatter.format(item.price),
     category: item.category.name,
     size: item.size.name,
