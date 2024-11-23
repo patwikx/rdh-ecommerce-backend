@@ -53,7 +53,6 @@ export const LoginForm = () => {
       if (data?.error) {
         setError(data.error);
       } else if (data.success) {
-        setSuccess(data.success); // Display success message
         window.location.assign("/");
       }
     } catch (error) {
