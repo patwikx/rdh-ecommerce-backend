@@ -44,12 +44,12 @@ import { ToastAction } from "@/components/ui/toast"
 const productSchema = z.object({
   barCode: z.string().min(13),
   name: z.string().min(1),
-  itemDesc: z.string().min(1),
+  itemDesc: z.string().optional(),
   images: z.object({ url: z.string() }).array().optional(),
   price: z.coerce.number().min(1),
   categoryId: z.string().min(1),
-  colorId: z.string().min(1),
-  sizeId: z.string().min(1),
+  colorId: z.string().optional(),
+  sizeId: z.string().optional(),
   uomId: z.string().min(1).nullable(),
   isFeatured: z.boolean().default(false),
   isArchived: z.boolean().default(false)
