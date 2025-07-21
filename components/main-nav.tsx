@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useParams, usePathname } from "next/navigation";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { LayoutGrid, ChevronDown, ImageDown, Home, FolderTree, Package, ShoppingCart, Settings, Ruler, Palette, Scale, User, Menu, X } from 'lucide-react';
+import { LayoutGrid, ChevronDown, ImageDown, Home, FolderTree, Package, ShoppingCart, Settings, Ruler, Palette, Scale, User, Menu, X, RefreshCw, BoxIcon, CircleArrowDown } from 'lucide-react';
 
 import { cn } from "@/lib/utils"
 import {
@@ -21,6 +21,7 @@ import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/s
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "./ui/separator";
 import Image from "next/image";
+import { UpdateIcon } from "@radix-ui/react-icons";
 
 export function MainNav({
   className,
@@ -78,6 +79,20 @@ export function MainNav({
   ]
 
   const catalogRoutes = [
+    {
+      href: `/${params.storeId}/products/price-update`,
+      label: 'Price Update',
+      icon: BoxIcon,
+      description: "Product Price Update",
+      active: pathname === `/${params.storeId}/products/price-update`,
+    },
+        {
+      href: `/${params.storeId}/products/bulk-deactivate`,
+      label: 'Product Deactivation',
+      icon: CircleArrowDown,
+      description: "Product Deactivation",
+      active: pathname === `/${params.storeId}/products/bulk-deactivate`,
+    },
     {
       href: `/${params.storeId}/categories`,
       label: 'Categories',

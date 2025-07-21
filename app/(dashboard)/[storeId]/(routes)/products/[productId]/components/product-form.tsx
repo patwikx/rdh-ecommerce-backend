@@ -130,7 +130,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       if (initialData) {
         await axios.patch(`/api/${params.storeId}/products/${params.productId}`, productsToSubmit[0]);
       } else {
-        await axios.post(`/api/${params.storeId}/products/bulk`, { products: productsToSubmit });
+        await axios.post(`/api/${params.storeId}/products/bulk-create`, { products: productsToSubmit });
       }
       router.refresh();
       router.push(`/${params.storeId}/products`);
@@ -307,7 +307,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               Download Template
             </Button>
             <div className="relative">
-              <input
+              <Input
                 ref={fileInputRef}
                 type="file"
                 accept=".xlsx,.xls"
