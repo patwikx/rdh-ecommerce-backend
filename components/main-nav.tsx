@@ -79,6 +79,13 @@ export function MainNav({
   ]
 
   const catalogRoutes = [
+        {
+      href: `/${params.storeId}/products/bulk-product-update`,
+      label: 'Product Update',
+      icon: UpdateIcon,
+      description: "Product/Items Update",
+      active: pathname === `/${params.storeId}/products/bulk-product-update`,
+    },
     {
       href: `/${params.storeId}/products/price-update`,
       label: 'Price Update',
