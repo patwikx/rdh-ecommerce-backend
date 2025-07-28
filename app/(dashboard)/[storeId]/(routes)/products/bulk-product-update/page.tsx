@@ -194,7 +194,7 @@ export default function BulkUpdateProductsPage() {
                 setLoading(false);
                 return;
             }
-            await axios.patch(`/api/${params.storeId}/products/bulk-update`, { products: payload });
+            await axios.patch(`/api/${params.storeId}/products/bulk-product-update`, { products: payload });
             toast({ title: "Update Successful" });
             setStagedProducts([]); setChanges({}); setErrors({});
         } catch (error) {
