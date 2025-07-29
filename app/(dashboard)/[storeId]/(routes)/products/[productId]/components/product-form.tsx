@@ -6,9 +6,10 @@ import { useState, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useFieldArray, useForm } from "react-hook-form"
 import { Loader, Plus, Trash, Upload } from 'lucide-react'
-import { Category, Color, Image, Product, Size, UoM } from "@prisma/client"
+import { Category, Color, Image as PrismaImage, Product, Size, UoM } from "@prisma/client"
 import { useParams, useRouter } from "next/navigation"
 import * as XLSX from 'xlsx'
+import Image from "next/image"
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -63,7 +64,7 @@ type ProductFormValues = z.infer<typeof formSchema>
 
 interface ProductFormProps {
   initialData: Product & {
-    images: Image[]
+    images: PrismaImage[]
   } | null;
   categories: Category[];
   colors: Color[];
@@ -96,7 +97,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           price: parseFloat(String(initialData?.price)),
           itemDesc: initialData.itemDesc || '',
           images: initialData.images.map(img => ({ url: img.url })),
-          uomId: initialData.uomId || '', // Convert null to empty string for the form
+          uomId: initialData.uomId || '',
         },
       ] : [{
         barCode: '',
@@ -174,14 +175,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   const handleFileUpload = (res: any, index: number) => {
     if (res && res.length > 0) {
-      const fileUrls = res.map((file: { url: string }) => ({ url: file.url }));
-      const currentProducts = form.getValues('products');
-      currentProducts[index].images = fileUrls;
-      form.setValue('products', currentProducts);
-      toast({
-        title: "Upload Completed",
-        description: "Your images have been uploaded successfully.",
-      });
+        const newImages = res.map((file: { url: string }) => ({ url: file.url }));
+        const currentImages = form.getValues(`products.${index}.images`) || [];
+        form.setValue(`products.${index}.images`, [...currentImages, ...newImages], {
+            shouldDirty: true,
+            shouldValidate: true,
+        });
+        toast({
+            title: "Upload Completed",
+            description: `${newImages.length} image(s) have been uploaded.`,
+        });
     }
   };
 
@@ -228,7 +231,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         variant: "destructive",
       });
     } finally {
-      // Reset the file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -258,7 +260,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   };
 
   const handleCancelImport = () => {
-    // Reset form to initial state with a single empty product
     form.reset({
       products: [{
         barCode: '',
@@ -277,13 +278,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     setIsImportMode(false);
   };
 
+  // ✅ **FIXED** `handleRemoveImage` with a check for the product's existence.
   const handleRemoveImage = (index: number, imageIndex: number) => {
-  const currentProducts = form.getValues('products');
-  if (currentProducts[index].images) {
-    currentProducts[index].images.splice(imageIndex, 1);
-  }
-  form.setValue('products', currentProducts);
-};
+    const currentProducts = form.getValues('products');
+    const product = currentProducts[index]; 
+
+    if (product && product.images) {
+        product.images.splice(imageIndex, 1);
+        form.setValue('products', currentProducts, { shouldDirty: true, shouldValidate: true });
+    }
+  };
 
   return (
     <>
@@ -325,6 +329,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full">
           {isImportMode ? (
+            // ... (Table for import mode remains unchanged)
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
@@ -489,8 +494,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                             <FormItem>
                               <Select 
                                 onValueChange={field.onChange} 
-                                value={field.value || ''} // Convert null to empty string
-                                defaultValue={field.value || ''} // Convert null to empty string
+                                value={field.value || ''} 
+                                defaultValue={field.value || ''}
                               >
                                 <FormControl>
                                   <SelectTrigger>
@@ -578,7 +583,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </div>
             </div>
           ) : (
-            fields.map((field, index) => (
+            fields.map((field, index) => {
+              // ✅ **FIXED** by defining a safe variable for watched images
+              const currentImages = form.watch(`products.${index}.images`);
+
+              return (
               <Card key={field.id} className="p-4">
                 <div className="grid gap-8">
                   <div className="mt-2 flex flex-col items-center justify-center">
@@ -604,6 +613,37 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       </div>
                     </label>
                   </div>
+                  
+                  {currentImages && currentImages.length > 0 && (
+                    <div className="p-4 border rounded-md">
+                        <div className="mb-4 flex items-center gap-4">
+                            <h3 className="text-lg font-semibold">Current Images</h3>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
+                        {currentImages.map((image, imageIndex) => (
+                            <div key={image.url} className="relative group aspect-square">
+                            <Image
+                                fill
+                                className="object-cover rounded-md"
+                                alt="Product Image Preview"
+                                src={image.url}
+                            />
+                            <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button
+                                type="button"
+                                onClick={() => handleRemoveImage(index, imageIndex)}
+                                variant="destructive"
+                                size="icon"
+                                >
+                                <Trash className="h-4 w-4" />
+                                </Button>
+                            </div>
+                            </div>
+                        ))}
+                        </div>
+                    </div>
+                  )}
+
                   <div className="grid gap-8 grid-cols-1 md:grid-cols-3">
                     <FormField
                       control={form.control}
@@ -809,8 +849,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   )}
                 </div>
               </Card>
-            ))
-          )}
+            )}))}
           <div className="flex justify-end gap-4">
             {isImportMode && (
               <Button
